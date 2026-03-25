@@ -1,0 +1,117 @@
+<Invoice xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2 ..\xsd\maindoc\UBL-Invoice-2.1.xsd" xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2">
+  <ext:UBLExtensions>
+    <ext:UBLExtension>
+      <ext:ExtensionContent><ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#" Id="Signature_KRL2026000000498">
+<ds:SignedInfo>
+<ds:CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315" />
+<ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256" />
+<ds:Reference Id="Reference-Id-e9cf1f58-ad5a-4fcb-93b4-6e22f56daf18" URI="#Signed-Properties-Id-caafdb00-7d2b-4e3d-82db-3701c9f3033f" Type="http://uri.etsi.org/01903#SignedProperties">
+<ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256" />
+<ds:DigestValue>nJeFlnfEzxB52EoXWPP/46R1qdpaPQ/JFxqVPGrCDa4=</ds:DigestValue>
+</ds:Reference>
+<ds:Reference Id="Reference-Id-0f2d5acd-cb32-4107-9ced-fe79598fc69d" URI="">
+<ds:Transforms>
+<ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" />
+</ds:Transforms>
+<ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256" />
+<ds:DigestValue>Zf6ikeS8fJxKsd+JTauXRV/xAvIpewV2YfylMLBunQI=</ds:DigestValue>
+</ds:Reference>
+</ds:SignedInfo>
+<ds:SignatureValue Id="Signature-Value-Id-b750dca6-e3b9-4a81-96b5-7a64b779a8ba">PWW/gypeBKFZMLXlvaEyCLYBbdoYHFUxs5g0RpYSlPAGcp2Bdr1CDpVLG2RmeUFfSGVFo7wHGKLGgyLcnZ7s9GsS36zx6q7FeD2eN3MXYypxh85Z/JAUzPpvoDi4F6zel1ot135ucRacqXSSZKZAG6UQYam27qd2LHB+PDNJnNAUQBSPt4HZTQXxMYqs3bLvqHvZn8Abh0KaG242GNn48jJsFfOEsBCjorQOM0rqi3sl6XULor1386Dt7zv9IKNLisPt3OHeQOoV/mtOkU1X/2/T3PdrhFnQuW8YPQMZ+48AHRTFP7Uo8acM2JaqxPD37oY+zn/QyG44snGbpVoD/Q==</ds:SignatureValue>
+<ds:KeyInfo>
+<ds:X509Data>
+<ds:X509Certificate>MIIFFDCCBJmgAwIBAgIIALS+uWouv8kwCgYIKoZIzj0EAwMwgdExCzAJBgNVBAYTAlRSMRgwFgYDVQQHDA9HZWJ6ZSAtIEtvY2FlbGkxRzBFBgNVBAoMPlTDvHJraXllIEJpbGltc2VsIHZlIFRla25vbG9qaWsgQXJhxZ90xLFybWEgS3VydW11IC0gVMOcQsSwVEFLMRAwDgYDVQQLDAdCxLBMR0VNMU0wSwYDVQQDDERNYWxpIE3DvGjDvHIgRWxla3Ryb25payBTZXJ0aWZpa2EgSGl6bWV0IFNhxJ9sYXnEsWPEsXPEsSAtIFPDvHLDvG0gMzAeFw0yNDA1MTMwNzMzMjhaFw0yNzA1MTMwNzMzMjhaMFMxEzARBgNVBAUTCjYwOTAxMjIwNzQxPDA6BgNVBAMMM0xPR08gWUFaSUxJTSBTQU5BWcSwIFZFIFTEsENBUkVUIEFOT07EsE0gxZ7EsFJLRVTEsDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAJ4+II4DfBzOhdyjXM5N3xw0Ele/IcRw2PY63g1hclvu5oUGO7vmbbJWde02V38xN/Y8J7o7v0Y0jFCoL6ny57H6rm5nGrYKOpy8afvCSNwNZ/2BB3Qkrr7bLEtS1yNXEXK/BTCbPbrFwp2qU9nI59ts8yx2KEAXKyDmNWYNJdUVgtEM6eatvRUas2i2QPP4Lu8nBpC7RmgXqkCCv9GNIKOMbOQrDQx+jnHZXC9/8nIHssbxAYb4T/rFWGDD0/icXayOBjp3Ws3zVJTe1gT/LVYQ7G9/ZxpqjCz4StAw5x9YmN7UOi1sOfrhPTZ4Q7p9ZU6J+j9yKNCkWnUnOiRp7jUCAwEAAaOCAgswggIHMB8GA1UdIwQYMBaAFAY5aBEtBAuAFL23OYKrBMj22Kl8MB0GA1UdDgQWBBSPjZM70ahfqvlIDm42NPG7dN2EzTAOBgNVHQ8BAf8EBAMCB4AwgcYGA1UdIASBvjCBuzCBuAYLYIYYAQIBAQUHBAEwgagwKgYIKwYBBQUHAgEWHmh0dHA6Ly9kZXBvLmthbXVzbS5nb3YudHIvaWxrZTB6BggrBgEFBQcCAjBuDGxCdSBzZXJ0aWZpa2EgaWxlIGlsZ2lsaSBzZXJ0aWZpa2EgdXlndWxhbWEgZXNhc2xhcsSxbsSxIG9rdW1hayBpw6dpbiBiZWxpcnRpbGVuIHdlYiBzaXRlc2luaSB6aXlhcmV0IGVkaW5pei4wDAYDVR0TAQH/BAIwADAWBgNVHSUEDzANBgtghhgBAgEBBQcyATBBBgNVHR8EOjA4MDagNKAyhjBodHRwOi8vZGVwby5rYW11c20uZ292LnRyL2t1cnVtc2FsL21tZXNocy1zMy5jcmwwgYIGCCsGAQUFBwEBBHYwdDA8BggrBgEFBQcwAoYwaHR0cDovL2RlcG8ua2FtdXNtLmdvdi50ci9rdXJ1bXNhbC9tbWVzaHMtczMuY3J0MDQGCCsGAQUFBzABhihodHRwOi8vY2lzZHVwbW1zMy5rdXJ1bXNhbC5rYW11c20uZ292LnRyMAoGCCqGSM49BAMDA2kAMGYCMQC9PAOT2vcVLF0YoATWRSswlHugY/UAecbvMYOt4egulF6Vu46jCdnJTWq5ErpgbAcCMQDEwUzHBHnoyGrQ4q930qaPnqb94E/7he+sfwMv298a5nA0I5YDkNMIPhQYUHUyLys=</ds:X509Certificate>
+</ds:X509Data>
+</ds:KeyInfo>
+<ds:Object Id="Object-Id-ca139b17-2ca9-4628-a42c-ba478a641e27"><xades:QualifyingProperties xmlns:xades="http://uri.etsi.org/01903/v1.3.2#" Target="#Signature_KRL2026000000498">
+<xades:SignedProperties Id="Signed-Properties-Id-caafdb00-7d2b-4e3d-82db-3701c9f3033f">
+<xades:SignedSignatureProperties>
+<xades:SigningTime>2026-02-11T11:11:59.1878053+03:00</xades:SigningTime>
+<xades:SigningCertificate>
+<xades:Cert>
+<xades:CertDigest>
+<ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256" />
+<ds:DigestValue>Xv4RSAGz6nvbR09sWQFuLjHh7Z2W+4AArzqvh9NZVgA=</ds:DigestValue>
+</xades:CertDigest>
+<xades:IssuerSerial>
+<ds:X509IssuerName>CN=Mali Mühür Elektronik Sertifika Hizmet Sağlayıcısı - Sürüm 3,OU=BİLGEM,O=Türkiye Bilimsel ve Teknolojik Araştırma Kurumu - TÜBİTAK,L=Gebze - Kocaeli,C=TR</ds:X509IssuerName>
+<ds:X509SerialNumber>50875199367593929</ds:X509SerialNumber>
+</xades:IssuerSerial>
+</xades:Cert>
+</xades:SigningCertificate>
+<xades:SignerRole>
+<xades:ClaimedRoles>
+<xades:ClaimedRole>Supplier</xades:ClaimedRole>
+</xades:ClaimedRoles>
+</xades:SignerRole>
+</xades:SignedSignatureProperties>
+<xades:SignedDataObjectProperties>
+<xades:DataObjectFormat ObjectReference="#Reference-Id-0f2d5acd-cb32-4107-9ced-fe79598fc69d">
+<xades:MimeType>text/xml</xades:MimeType>
+</xades:DataObjectFormat>
+</xades:SignedDataObjectProperties>
+</xades:SignedProperties>
+</xades:QualifyingProperties>
+</ds:Object>
+</ds:Signature></ext:ExtensionContent>
+    </ext:UBLExtension>
+  </ext:UBLExtensions>
+  <cbc:UBLVersionID>2.1</cbc:UBLVersionID>
+  <cbc:CustomizationID>TR1.2</cbc:CustomizationID>
+  <cbc:ProfileID>TICARIFATURA</cbc:ProfileID>
+  <cbc:ID>KRL2026000000498</cbc:ID>
+  <cbc:CopyIndicator>false</cbc:CopyIndicator>
+  <cbc:UUID>ad1ecbf6-04e0-4498-9b38-e95b786c1b7b</cbc:UUID>
+  <cbc:IssueDate>2026-02-09</cbc:IssueDate>
+  <cbc:IssueTime>08:08:21.3140000+03:00</cbc:IssueTime>
+  <cbc:InvoiceTypeCode>SATIS</cbc:InvoiceTypeCode>
+  <cbc:Note>NOT: ETİKET EKTEDİR.</cbc:Note>
+  <cbc:Note>PRM0.0</cbc:Note>
+  <cbc:Note>Yalnız ÜÇYÜZDOKSANDOKUZBİNOTUZ TL  SEKSEN KR</cbc:Note>
+  <cbc:Note>Vadesi geçen faturalara aylık %3 vade farkı uygulanır.</cbc:Note>
+  <cbc:DocumentCurrencyCode>TRY</cbc:DocumentCurrencyCode>
+  <cbc:LineCountNumeric>1</cbc:LineCountNumeric>
+  <cac:OrderReference>
+    <cbc:ID>YMS000000100998</cbc:ID>
+    <cbc:IssueDate>2026-02-09</cbc:IssueDate>
+  </cac:OrderReference>
+  <cac:DespatchDocumentReference>
+    <cbc:ID>IIZ006000000497</cbc:ID>
+    <cbc:IssueDate>2026-02-09</cbc:IssueDate>
+  </cac:DespatchDocumentReference>
+  <cac:AdditionalDocumentReference>
+    <cbc:ID>5607dc26-fdcf-43e9-905a-92b46909d9b6</cbc:ID>
+    <cbc:IssueDate>2026-02-11</cbc:IssueDate>
+</cac:AdditionalDocumentReference>
+<cac:AccountingSupplierParty>
+<cac:Party>
+<cac:PartyName><cbc:Name>LOGO YAZILIM</cbc:Name></cac:PartyName>
+<cac:PartyTaxScheme><cac:TaxScheme><cbc:Name>Kurumlar Vergisi</cbc:Name></cac:TaxScheme><cbc:CompanyID>1234567890</cbc:CompanyID></cac:PartyTaxScheme>
+</cac:Party>
+</cac:AccountingSupplierParty>
+<cac:AccountingCustomerParty>
+<cac:Party>
+<cac:PartyName><cbc:Name>MUSTERI LTD</cbc:Name></cac:PartyName>
+</cac:Party>
+</cac:AccountingCustomerParty>
+<cac:TaxTotal>
+<cbc:TaxAmount currencyID="TRY">200.00</cbc:TaxAmount>
+</cac:TaxTotal>
+<cac:LegalMonetaryTotal>
+<cbc:LineExtensionAmount currencyID="TRY">1000.00</cbc:LineExtensionAmount>
+<cbc:TaxExclusiveAmount currencyID="TRY">1000.00</cbc:TaxExclusiveAmount>
+<cbc:TaxInclusiveAmount currencyID="TRY">1200.00</cbc:TaxInclusiveAmount>
+<cbc:PayableAmount currencyID="TRY">1200.00</cbc:PayableAmount>
+</cac:LegalMonetaryTotal>
+<cac:InvoiceLine>
+<cbc:ID>1</cbc:ID>
+<cbc:InvoicedQuantity unitCode="C62">10</cbc:InvoicedQuantity>
+<cbc:LineExtensionAmount currencyID="TRY">1000.00</cbc:LineExtensionAmount>
+<cac:Item>
+<cbc:Name>Test Urunu</cbc:Name>
+</cac:Item>
+<cac:Price>
+<cbc:PriceAmount currencyID="TRY">100.00</cbc:PriceAmount>
+</cac:Price>
+</cac:InvoiceLine>
+</Invoice>
