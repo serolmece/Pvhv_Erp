@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, useOutletContext } from 'react-router-dom';
 import api from '../api/axios';
 import { Card, Table, Button, Typography, message, Tag, Space, Modal, Form, Input, DatePicker, Popconfirm } from 'antd';
-import { CheckCircleOutlined, EyeOutlined, PlusOutlined, SettingOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, EyeOutlined, PlusOutlined, SettingOutlined, DownloadOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import * as XLSX from 'xlsx';
 import DecimalInput from '../components/DecimalInput';
 
 const { Title, Text } = Typography;
@@ -17,6 +18,12 @@ const OrdersList = () => {
     const [producingId, setProducingId] = useState(null);
     const [detailsVisible, setDetailsVisible] = useState(false);
     const [currentOrderDetails, setCurrentOrderDetails] = useState([]);
+
+    const [needsModalVisible, setNeedsModalVisible] = useState(false);
+    const [currentNeedsOrder, setCurrentNeedsOrder] = useState(null);
+    const [currentOrderNeeds, setCurrentOrderNeeds] = useState([]);
+    const [needsLoading, setNeedsLoading] = useState(false);
+    const [purchasing, setPurchasing] = useState(false);
 
     const [productionModalVisible, setProductionModalVisible] = useState(false);
     const [currentProductionOrder, setCurrentProductionOrder] = useState(null);
@@ -169,6 +176,73 @@ const OrdersList = () => {
         });
     };
 
+    const handleViewNeeds = async (order) => {
+        setCurrentNeedsOrder(order);
+        setNeedsModalVisible(true);
+        setNeedsLoading(true);
+        setCurrentOrderNeeds([]);
+        try {
+            const res = await api.get(`/orders/${order.SiparisID}/needs`);
+            setCurrentOrderNeeds(res.data);
+        } catch (error) {
+            console.error(error);
+            message.error('İhtiyaç analizi alınamadı.');
+        } finally {
+            setNeedsLoading(false);
+        }
+    };
+
+    const handlePurchaseMissing = async () => {
+        const missingItems = currentOrderNeeds.filter(item => item.EksikMiktar > 0);
+        if (missingItems.length === 0) {
+            message.info('Alınacak eksik malzeme yok.');
+            return;
+        }
+
+        setPurchasing(true);
+        try {
+            for (const item of missingItems) {
+                await api.post('/stock-movements', {
+                    stokId: item.HammaddeID,
+                    hareketTipi: 'Giris',
+                    miktar: item.EksikMiktar,
+                    birimFiyat: 0, 
+                    kdvOrani: 18,
+                    aciklama: `Sipariş İhtiyacı Otomatik Alım`
+                });
+            }
+            message.success('Eksik malzemeler için stok girişi başarıyla yapıldı. Stoklar güncellendi.');
+            setNeedsModalVisible(false);
+        } catch (error) {
+            console.error(error);
+            message.error('Alım işlemi yapılırken hata oluştu.');
+        } finally {
+            setPurchasing(false);
+        }
+    };
+
+    const handleExportNeedsExcel = () => {
+        if (!currentOrderNeeds || currentOrderNeeds.length === 0) {
+            message.warning('Dışa aktarılacak veri bulunamadı.');
+            return;
+        }
+
+        const exportData = currentOrderNeeds.map(item => ({
+            'Stok Kodu': item.StokKodu,
+            'Malzeme/Ürün Adı': item.StokAdi,
+            'Toplam İhtiyaç': item.ToplamIhtiyac,
+            'Birim': item.AnaBirim,
+            'Mevcut Stok': item.MevcutStok,
+            'Eksik Miktar': item.EksikMiktar,
+            'Durum': item.Durum
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "İhtiyaç Raporu");
+        XLSX.writeFile(workbook, `Siparis_Ihtiyac_Raporu.xlsx`);
+    };
+
     const columns = [
         {
             title: 'Sipariş No',
@@ -220,7 +294,17 @@ const OrdersList = () => {
                             icon={<SettingOutlined />}
                             onClick={() => handleOpenProduction(record)}
                         >
-                            Üretim Girişi
+                            Üretim
+                        </Button>
+                    )}
+                    {record.Durum !== 'Tamamlandı' && (
+                        <Button
+                            type="primary"
+                            ghost
+                            size="small"
+                            onClick={() => handleViewNeeds(record)}
+                        >
+                            İhtiyaçlar
                         </Button>
                     )}
                     {record.Durum !== 'Tamamlandı' && (
@@ -289,6 +373,61 @@ const OrdersList = () => {
                     dataSource={currentOrderDetails}
                     rowKey="KalemID"
                     pagination={false}
+                />
+            </Modal>
+
+            <Modal
+                title={`Sipariş İhtiyaç Raporu - ${currentNeedsOrder ? `Sipariş #${currentNeedsOrder.SiparisID} ${currentNeedsOrder.MusteriUnvan ? `(${currentNeedsOrder.MusteriUnvan})` : ''}` : '(Hammadde)'}`}
+                open={needsModalVisible}
+                onCancel={() => setNeedsModalVisible(false)}
+                footer={[
+                    <Button key="close" onClick={() => setNeedsModalVisible(false)}>Kapat</Button>,
+                    <Button key="excel" icon={<DownloadOutlined />} onClick={handleExportNeedsExcel}>
+                        Excel İndir
+                    </Button>,
+                    currentOrderNeeds.some(n => n.EksikMiktar > 0) && (
+                        <Popconfirm
+                            key="buy"
+                            title="Eksik Malzemeleri Satın Al"
+                            description="Listede eksik görünen tüm malzemeler için otomatik olarak stok girişi (alım) yapılsın mı?"
+                            onConfirm={handlePurchaseMissing}
+                            okText="Evet, Alım Yap"
+                            cancelText="Hayır"
+                        >
+                            <Button type="primary" loading={purchasing}>
+                                Eksik Malzemeleri Satın Al
+                            </Button>
+                        </Popconfirm>
+                    )
+                ]}
+                width={800}
+            >
+                <div>
+                    <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>
+                        Bu liste, siparişte **henüz üretilmemiş** ürünler için reçetedeki hammaddelere göre hesaplanan ihtiyacı ve mevcut stoğu gösterir. "Eksik" olan kalemler, üretimi tamamlayabilmeniz için dışarıdan almanız (stok girişi yapmanız) gereken miktardır.
+                    </Text>
+                </div>
+                <Table
+                    loading={needsLoading}
+                    dataSource={currentOrderNeeds}
+                    rowKey="HammaddeID"
+                    pagination={false}
+                    columns={[
+                        { title: 'Stok Kodu', dataIndex: 'StokKodu' },
+                        { title: 'Malzeme', dataIndex: 'StokAdi' },
+                        { title: 'Toplam İhtiyaç', dataIndex: 'ToplamIhtiyac', render: (val, row) => <Text strong>{val.toFixed(2)} {row.AnaBirim}</Text> },
+                        { title: 'Mevcut Stok', dataIndex: 'MevcutStok', render: (val, row) => <Text>{val.toFixed(2)} {row.AnaBirim}</Text> },
+                        {
+                            title: 'Eksik',
+                            dataIndex: 'EksikMiktar',
+                            render: (val, row) => val > 0 ? <Text type="danger" strong>{val.toFixed(2)} {row.AnaBirim}</Text> : <Text type="success">0</Text>
+                        },
+                        {
+                            title: 'Durum',
+                            dataIndex: 'Durum',
+                            render: (val) => val === 'Yeterli' ? <Tag color="green">Yeterli</Tag> : <Tag color="red">Yetersiz</Tag>
+                        }
+                    ]}
                 />
             </Modal>
 

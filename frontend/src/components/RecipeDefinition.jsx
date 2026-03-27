@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Form, Input, Button, Select, Table, Row, Col, Typography, message, Space, Divider } from 'antd';
 import { PlusOutlined, SaveOutlined, DeleteOutlined, CopyOutlined } from '@ant-design/icons';
-import axios from 'axios';
+import api from '../api/axios';
 import { useLocation } from 'react-router-dom';
 import DecimalInput from './DecimalInput';
 
@@ -12,7 +12,8 @@ const RecipeDefinition = ({ editRecipeId, onFinish }) => {
     const location = useLocation();
     const [stocks, setStocks] = useState([]);
     const [selectedProduct, setSelectedProduct] = useState(null);
-    const [existingRecipes, setExistingRecipes] = useState([]); // Recipes for selected product
+    const [existingRecipes, setExistingRecipes] = useState([]); // All available recipes to copy from
+    const [loadingRecipes, setLoadingRecipes] = useState(false);
     const [selectedCopyRecipe, setSelectedCopyRecipe] = useState(null); // Selected recipe to copy
 
     const [customers, setCustomers] = useState([]);
@@ -22,37 +23,32 @@ const RecipeDefinition = ({ editRecipeId, onFinish }) => {
     const [recipeItems, setRecipeItems] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    // Fetch stocks with cost info on mount
+    // Fetch stocks, customers and all recipes on mount
     useEffect(() => {
-        const fetchStocksAndCustomers = async () => {
+        const fetchInitialData = async () => {
             try {
-                const stockRes = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5001/api'}/recipes/stocks`);
+                const stockRes = await api.get('/recipes/stocks');
                 setStocks(stockRes.data);
 
-                const cusRes = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5001/api'}/customers`);
+                const cusRes = await api.get('/customers');
                 setCustomers(cusRes.data);
+
+                // Fetch all recipes to allow copying from any product's recipe
+                setLoadingRecipes(true);
+                const recRes = await api.get('/recipes');
+                setExistingRecipes(recRes.data);
+                setLoadingRecipes(false);
             } catch (error) {
+                console.error(error);
                 message.error('Veriler yüklenemedi.');
+                setLoadingRecipes(false);
             }
         };
-        fetchStocksAndCustomers();
+        fetchInitialData();
     }, []);
 
-    // Fetch existing recipes when product changes
+    // Clear selected copy recipe when product changes (optional)
     useEffect(() => {
-        if (selectedProduct) {
-            const fetchRecipes = async () => {
-                try {
-                    const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5001/api'}/recipes/by-product/${selectedProduct}`);
-                    setExistingRecipes(res.data);
-                } catch (error) {
-                    console.error(error);
-                }
-            };
-            fetchRecipes();
-        } else {
-            setExistingRecipes([]);
-        }
         setSelectedCopyRecipe(null);
     }, [selectedProduct]);
 
@@ -61,7 +57,7 @@ const RecipeDefinition = ({ editRecipeId, onFinish }) => {
         if (!recipeId) return;
 
         try {
-            const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5001/api'}/recipes/${recipeId}`);
+            const res = await api.get(`/recipes/${recipeId}`);
             const { header, items } = res.data;
 
             // Fill form with copied data
@@ -95,7 +91,7 @@ const RecipeDefinition = ({ editRecipeId, onFinish }) => {
             const fetchRecipeForEdit = async () => {
                 setLoading(true);
                 try {
-                    const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5001/api'}/recipes/${editRecipeId}`);
+                    const res = await api.get(`/recipes/${editRecipeId}`);
                     const { header, items } = res.data;
 
                     setSelectedProduct(header.UrunID);
@@ -195,11 +191,11 @@ const RecipeDefinition = ({ editRecipeId, onFinish }) => {
         try {
             setLoading(true);
             if (editRecipeId) {
-                await axios.put(`${import.meta.env.VITE_API_URL || 'http://localhost:5001/api'}/recipes/${editRecipeId}`, payload);
+                await api.put(`/recipes/${editRecipeId}`, payload);
                 message.success('Reçete başarıyla güncellendi.');
                 if (onFinish) onFinish();
             } else {
-                await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5001/api'}/recipes`, payload);
+                await api.post('/recipes', payload);
                 message.success('Reçete YENİ KAYIT olarak başarıyla oluşturuldu.');
                 setRecipeDescription('');
                 setSelectedCustomer(null);
@@ -208,7 +204,8 @@ const RecipeDefinition = ({ editRecipeId, onFinish }) => {
 
                 if (onFinish) onFinish(); // Call to switch tab or refresh list
 
-                const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5001/api'}/recipes/by-product/${selectedProduct}`);
+                // Refresh existing recipes after saving new one
+                const res = await api.get('/recipes');
                 setExistingRecipes(res.data);
             }
         } catch (error) {
@@ -326,15 +323,20 @@ const RecipeDefinition = ({ editRecipeId, onFinish }) => {
                         <Col span={8}>
                             <Form.Item label="Mevcut Reçeteden Kopyala (Opsiyonel)">
                                 <Select
-                                    placeholder={existingRecipes.length > 0 ? "Kopyalanacak Reçeteyi Seçin" : "Kayıtlı Reçete Yok"}
+                                    showSearch
+                                    placeholder={loadingRecipes ? "Yükleniyor..." : (existingRecipes.length > 0 ? "Kopyalanacak Reçeteyi Seçin" : "Kayıtlı Reçete Yok")}
                                     value={selectedCopyRecipe}
                                     onChange={handleCopyRecipe}
-                                    disabled={!selectedProduct || existingRecipes.length === 0}
+                                    disabled={!selectedProduct || loadingRecipes}
                                     allowClear
+                                    optionFilterProp="children"
+                                    filterOption={(input, option) =>
+                                        String(option.children).toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                    }
                                 >
                                     {existingRecipes.map(r => (
                                         <Option key={r.ReceteID} value={r.ReceteID}>
-                                            {r.Aciklama || `Reçete #${r.ReceteID}`} {r.MusteriUnvan ? `(Müşteri: ${r.MusteriUnvan})` : ''} - {new Date(r.OlusturmaTarihi).toLocaleDateString()}
+                                            {r.UrunAdi ? `${r.UrunAdi} - ` : ''}{r.Aciklama || `Reçete #${r.ReceteID}`} {r.MusteriUnvan ? `(Müşteri: ${r.MusteriUnvan})` : ''}
                                         </Option>
                                     ))}
                                 </Select>

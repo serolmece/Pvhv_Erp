@@ -545,3 +545,103 @@ exports.deleteProductionRecord = async (req, res) => {
         res.status(500).json({ message: err.message || 'Üretim kaydı silinirken hata oluştu.' });
     }
 };
+
+// ================== NEEDS ANALYSIS ==================
+
+exports.getOrderNeeds = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const pool = await poolPromise;
+
+        // 1. Get order items
+        const itemsRes = await pool.request()
+            .input('SiparisID', sql.Int, id)
+            .query(`SELECT KalemID, UrunID, Miktar, OzelReceteID FROM SiparisKalemleri WHERE SiparisID = @SiparisID`);
+
+        const items = itemsRes.recordset;
+
+        // Fetch how much was already produced via UretimTakibi (if any)
+        const prodRes = await pool.request()
+            .input('SiparisID', sql.Int, id)
+            .query(`SELECT KalemID, ISNULL(SUM(UretilenMiktar), 0) as ToplamUretim FROM UretimTakibi WHERE SiparisID = @SiparisID GROUP BY KalemID`);
+
+        const productions = prodRes.recordset;
+
+        const totalNeeds = {};
+
+        for (const item of items) {
+            let receteId = item.OzelReceteID;
+
+            const producedSoFar = productions.find(p => p.KalemID === item.KalemID)?.ToplamUretim || 0;
+            const remainingToProduce = item.Miktar - producedSoFar;
+
+            if (remainingToProduce <= 0) continue; // Already fully produced
+
+            if (!receteId) {
+                const defaultRecipe = await pool.request()
+                    .input('UrunID', sql.Int, item.UrunID)
+                    .query(`SELECT TOP 1 ReceteID FROM Receteler WHERE UrunID = @UrunID ORDER BY ReceteID DESC`);
+                if (defaultRecipe.recordset.length > 0) receteId = defaultRecipe.recordset[0].ReceteID;
+            }
+
+            if (receteId) {
+                const detailRes = await pool.request()
+                    .input('ReceteID', sql.Int, receteId)
+                    .query(`
+                        SELECT r.HammaddeID, r.Miktar, r.HedefUrunAdedi, s.StokKodu, s.StokAdi, ISNULL(s.MevcutStok, 0) AS MevcutStok, s.AnaBirim
+                        FROM ReceteDetaylari r
+                        JOIN StokKartlari s ON r.HammaddeID = s.StokID
+                        WHERE r.ReceteID = @ReceteID
+                    `);
+
+                for (const rm of detailRes.recordset) {
+                    const divisor = rm.HedefUrunAdedi || 1;
+                    const requiredForThisItem = (parseFloat(rm.Miktar) / divisor) * parseFloat(remainingToProduce);
+
+                    if (!totalNeeds[rm.HammaddeID]) {
+                        totalNeeds[rm.HammaddeID] = {
+                            HammaddeID: rm.HammaddeID,
+                            StokKodu: rm.StokKodu,
+                            StokAdi: rm.StokAdi,
+                            AnaBirim: rm.AnaBirim,
+                            MevcutStok: rm.MevcutStok,
+                            ToplamIhtiyac: 0
+                        };
+                    }
+                    totalNeeds[rm.HammaddeID].ToplamIhtiyac += requiredForThisItem;
+                }
+            } else {
+               // No recipe, assume the product itself is the raw material
+                const st = await pool.request().input('StokID', sql.Int, item.UrunID).query(`SELECT StokKodu, StokAdi, ISNULL(MevcutStok, 0) as MevcutStok, AnaBirim FROM StokKartlari WHERE StokID = @StokID`);
+                if (st.recordset.length > 0) {
+                    const productData = st.recordset[0];
+                    if (!totalNeeds[item.UrunID]) {
+                        totalNeeds[item.UrunID] = {
+                            HammaddeID: item.UrunID,
+                            StokKodu: productData.StokKodu,
+                            StokAdi: productData.StokAdi,
+                            AnaBirim: productData.AnaBirim,
+                            MevcutStok: productData.MevcutStok,
+                            ToplamIhtiyac: 0
+                        };
+                    }
+                    totalNeeds[item.UrunID].ToplamIhtiyac += remainingToProduce;
+                }
+            }
+        }
+
+        const responseData = Object.values(totalNeeds).map(need => {
+            const fark = need.MevcutStok - need.ToplamIhtiyac;
+            return {
+                ...need,
+                EksikMiktar: fark < 0 ? Math.abs(fark) : 0,
+                Durum: fark < 0 ? 'Yetersiz' : 'Yeterli'
+            };
+        });
+
+        res.status(200).json(responseData);
+    } catch (err) {
+        console.error('Error calculating order needs:', err);
+        res.status(500).json({ message: 'İhtiyaç analizi yapılırken hata oluştu.' });
+    }
+};

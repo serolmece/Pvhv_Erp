@@ -11,4 +11,7 @@ router.get('/:siparisId/production', orderController.getProductionRecords); // L
 router.put('/:siparisId/production/:uretimId', orderController.updateProductionRecord); // Update production record
 router.delete('/:siparisId/production/:uretimId', orderController.deleteProductionRecord); // Delete production record
 
+// Needs Analysis
+router.get('/:id/needs', orderController.getOrderNeeds); // Calculate missing raw materials for an order
+
 module.exports = router;

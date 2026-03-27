@@ -57,6 +57,7 @@ const UserManual = () => {
                         <li>Menüden <Text code>Reçeteler (Üretim Planı)</Text> bölümüne gidin.</li>
                         <li>Yukarıdan, üretimi yapılacak olan nihai (bitmiş) ürün kartını seçin.</li>
                         <li>Dilerseniz bu formülü "Genel" bırakabilir veya sadece spesifik bir kullanıcıya özel (Örn. X Müşterisi Özel) tanımlayabilirsiniz.</li>
+                        <li><Text mark>Hızlı Şablonlar:</Text> Yeni bir reçete tanımlarken, <Text code>Mevcut Reçeteden Kopyala</Text> özelliğini kullanarak sistemde kayıtlı diğer tüm ürünlerin reçetelerini kopyalayıp üzerinde değişiklik yapabilirsiniz.</li>
                         <li>Gerekli malzemeleri/hammaddeleri ve miktarlarını ekleyip "Kaydet"e basın.</li>
                     </ul>
                 </div>
@@ -72,6 +73,7 @@ const UserManual = () => {
                     <ul style={{ listStyleType: 'circle', marginLeft: 20, marginTop: 5 }}>
                         <li><Text code>Müşteriler</Text> listesinden veya "Siparişler" menüsünden girerek bir müşteri siparişi oluşturun.</li>
                         <li>Siparişi verirken, o müşteri için hazırlanmış özel bir reçete varsa yanından seçin.</li>
+                        <li><Text type="warning" strong>İhtiyaç Analizi ve Hızlı Alım:</Text> "Sipariş ve Üretim" listesindeki her siparişin yanındaki <Text code>İhtiyaçlar</Text> butonuna tıklayarak siparişi üretmek için eksik olan hammaddeleri listeleyebilir ve tek tıkla <Text mark>Eksik Malzemeleri Satın Al</Text> diyerek stoklara otomatik giriş yapabilirsiniz.</li>
                         <li><Text type="success" strong>Oto-Stok Düşüm:</Text> Soldaki <Text code>Sipariş ve Üretim</Text> listesine gidip <Text mark>"Üretimi Tamamla"</Text> butonuna tıkladığınız anda; sipariş "Tamamlandı" statüsüne geçer ve reçetedeki tüm parçalar / hammaddeler, adetleri hesaplanarak **ana stounuzdan otomatik olarak düşülür.**</li>
                     </ul>
                 </div>
